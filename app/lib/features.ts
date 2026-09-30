@@ -1,7 +1,7 @@
 export const FEATURE_KEYS = ["pseudocode_attendance_rate","pseudocode_avg_score","coding_practice_solved_pct","coding_test_overall_score","coding_test_attendance","weekly_score_consistency"] as const;
 export const FEATURE_NAMES = ["Pseudocode attendance","Pseudocode score","Practice completion","Coding test score","Coding attendance","Weekly consistency"];
 export const DATASET_HEADER = ["student_id","name","email","roll_number","candidate_id",...FEATURE_KEYS,"practice_problems_solved","weeks_zero_activity","candidate_tier","anomaly_type","expected_severity","is_anomaly"];
-export type FeatureRecord={id:string;values:number[];problems:number|null;inactive:number|null;tier:string;category:string;severity:string;label:boolean|null};
+export type FeatureRecord={id:string;name:string;roll:string;values:number[];problems:number|null;inactive:number|null;tier:string;category:string;severity:string;label:boolean|null};
 export const SNAPSHOT={count:1019,flagged:120,averages:[62.55,55.06,45.89,56.72,70.18,62.5],labels:[{name:"Disengaged",count:30},{name:"Erratic",count:30},{name:"Sudden drop-off",count:30},{name:"Suspicious high scorer",count:30}]};
 export function readRows(text:string):string[][]{
  const rows:string[][]=[];let row:string[]=[],value="",quoted=false;
@@ -23,14 +23,15 @@ export function parseFeatures(text:string):FeatureRecord[]{
  const values=FEATURE_KEYS.map(k=>{const s=get(k),n=Number(s);if(!s||!Number.isFinite(n)||n<0||n>100)throw Error("Row "+(i+2)+": "+k+" must be a number from 0 to 100.");return n;});
  const integer=(key:string)=>{const s=get(key);if(!s)return null;const n=Number(s);if(!Number.isInteger(n)||n<0)throw Error("Row "+(i+2)+": "+key+" must be a nonnegative integer.");return n;};
  const raw=get("is_anomaly").toLowerCase();if(raw&&!["true","false","1","0"].includes(raw))throw Error("Row "+(i+2)+": is_anomaly must be True or False.");
- return {id,values,problems:integer("practice_problems_solved"),inactive:integer("weeks_zero_activity"),tier:get("candidate_tier")||"Unspecified",category:get("anomaly_type")||"Unspecified",severity:get("expected_severity")||"Unspecified",label:raw?raw==="true"||raw==="1":null};
+ return {id,name:get("name"),roll:get("roll_number"),values,problems:integer("practice_problems_solved"),inactive:integer("weeks_zero_activity"),tier:get("candidate_tier")||"Unspecified",category:get("anomaly_type")||"Unspecified",severity:get("expected_severity")||"Unspecified",label:raw?raw==="true"||raw==="1":null};
  });
 }
 export function summarize(records:FeatureRecord[]){
  return {count:records.length,flagged:records.filter(r=>r.label===true).length,averages:FEATURE_KEYS.map((_,i)=>records.length?records.reduce((sum,r)=>sum+r.values[i],0)/records.length:0)};
 }
 export function filterRecords(records:FeatureRecord[],q:string,tier:string,category:string,flagged:boolean,feature:number,minimum:number){
- return records.filter(r=>r.id.toLowerCase().includes(q.trim().toLowerCase())&&(tier==="All tiers"||r.tier===tier)&&(category==="All labels"||r.category===category)&&(!flagged||r.label===true)&&r.values[feature]>=minimum);
+ const needle=q.trim().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ return records.filter(r=>[r.id,r.name,r.roll].some(v=>v.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(needle))&&(tier==="All tiers"||r.tier===tier)&&(category==="All labels"||r.category===category)&&(!flagged||r.label===true)&&r.values[feature]>=minimum);
 }
 export function safeCSV(v:string|number|null){const text=String(v??"");return '"'+(/^[=+@\-\t\r]/.test(text)?"'":"")+text.replace(/"/g,'""')+'"';}
 export function exportFeatures(rows:FeatureRecord[]){return ["student_id",...FEATURE_KEYS,"practice_problems_solved","weeks_zero_activity","candidate_tier","anomaly_type","expected_severity","is_anomaly"].join(",")+"\n"+rows.map(r=>[r.id,...r.values,r.problems,r.inactive,r.tier,r.category,r.severity,r.label===null?"":r.label?"True":"False"].map(safeCSV).join(",")).join("\n");}
