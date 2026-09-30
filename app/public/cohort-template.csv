@@ -1,0 +1,4 @@
+student_id,course,sessions,avg_minutes,completion_pct,reconstruction_error
+ED-1001,Biotechnology,12,36,78,0.042
+ED-1002,Biotechnology,5,18,42,0.092
+
