@@ -1,4 +1,1 @@
-student_id,course,sessions,avg_minutes,completion_pct,reconstruction_error
-ED-1001,Biotechnology,12,36,78,0.042
-ED-1002,Biotechnology,5,18,42,0.092
-
+student_id,name,email,roll_number,candidate_id,pseudocode_attendance_rate,pseudocode_avg_score,coding_practice_solved_pct,coding_test_overall_score,coding_test_attendance,weekly_score_consistency,practice_problems_solved,weeks_zero_activity,candidate_tier,anomaly_type,expected_severity,is_anomaly
