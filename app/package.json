@@ -6,8 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/features.test.mjs"
+    "typecheck": "node scripts/prepare-app.mjs && tsc --noEmit",
+    "test": "node --experimental-strip-types --test tests/features.test.mjs",
+    "prebuild": "node scripts/prepare-app.mjs",
+    "predev": "node scripts/prepare-app.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",

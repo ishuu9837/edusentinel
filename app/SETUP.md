@@ -18,3 +18,7 @@ CSV data is processed locally in the browser. This interface does not execute th
 - Original Edusentinel logo and learning atlas: https://www.figma.com/design/SBtq29hAV5ZyILISo3NlYU
 
 The Community resource was used as a visual hierarchy reference. Its code, artwork, fonts, and purple palette were not copied. The website uses an original identity and artwork, with DM Sans provided by Fontsource under the SIL Open Font License.
+
+## Compatibility with previous uploads
+
+The build preparation script moves the obsolete root `app` route folder and previous `LearningObservatory.tsx` component into an ignored `.legacy-app-backup` folder when they exist. The new `src/app` routes then take precedence. Backups are excluded from TypeScript checking. The included PostCSS config has no plugins because this app uses plain CSS.
