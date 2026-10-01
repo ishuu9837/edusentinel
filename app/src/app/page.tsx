@@ -1,3 +1,2 @@
-import { LearningObservatory } from "../../components/LearningObservatory";
-export default function Page(){return <LearningObservatory/>;}
-
+import { Edusentinel } from '../../components/Edusentinel';
+export default function Page() { return <Edusentinel />; }
