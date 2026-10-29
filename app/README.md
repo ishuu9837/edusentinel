@@ -39,3 +39,23 @@ Layout reference: https://forma-fluid-demo.squarespace.com/ . Brand colours, con
 ## Research paper
 
 The Research Paper section links to `/edusentiel-paper.pdf` with a download link and a separate reading link. This is an unchanged copy of the repository's `Ish's paper.pdf`. Replace the public copy when publishing a revised paper.
+
+## Real trained-model inference
+
+The **Student explorer** includes a **Score a student with the trained model** panel. You can enter eight feature values manually or open a student record and score its values. Six percentage values and two nonnegative integer activity counts are mandatory. The **Run autoencoder prediction** action sends only these eight numerical features to `POST /api/predict`.
+
+The endpoint runs the original trained NumPy autoencoder's exported weights and biases, its fitted Min-Max scaler, and the original 90th-percentile threshold, all exported from the existing `autoencoder_model.pkl`. This is not a new or retrained model, and the endpoint does not unpickle untrusted user input.
+
+Example request (from the original project notebook):
+
+```bash
+curl -X POST http://localhost:3000/api/predict -H 'Content-Type: application/json' -d '{"pseudocode_attendance_rate":50,"pseudocode_avg_score":23,"coding_practice_solved_pct":23,"coding_test_overall_score":1,"coding_test_attendance":98,"weekly_score_consistency":99,"practice_problems_solved":1,"weeks_zero_activity":1}'
+```
+
+Expected example: reconstruction error approximately `0.281855`, severity `MEDIUM`. The saved threshold is approximately `0.145438`; `NORMAL` is at or below this value, `MEDIUM` is above it through twice the threshold, and `HIGH` is above twice the threshold.
+
+**Model inputs: eight.** Six percentages are visualized in the explorer; `practice_problems_solved` and `weeks_zero_activity` are additional model inputs. Existing CSV annotations remain **supplied labels**, not generated predictions. CSV import stays client-side; only the eight explicitly submitted numerical values are sent to the prediction endpoint. The score is an anomaly signal for human review, not an assessment of a student's ability or intent.
+
+## Verification and limits
+
+The exported inference arithmetic was independently checked against the original notebook's published example and reproduces the expected score and severity. It has not been subjected to a complete deployed-endpoint integration test. The root README's historical evaluation metrics are reported from the notebook, not rerun by this web app.
